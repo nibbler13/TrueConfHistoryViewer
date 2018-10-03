@@ -5,8 +5,100 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TrueConfHistoryViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Просмотр истории звонков TrueConf" 
+        Height="450" 
+        Width="1200"
+        MinHeight="450"
+        MinWidth="800"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" 
+                    HorizontalAlignment="Center">
+            <CheckBox Content="Дата начала:"
+                      VerticalAlignment="Center"
+                      x:Name="CheckBoxDateBegin"
+                      Checked="CheckBoxDateBegin_Checked"
+                      Unchecked="CheckBoxDateBegin_Unchecked"/>
+            <DatePicker IsEnabled="False" 
+                        Margin="10,0,10,0"
+                        x:Name="DatePickerBegin"/>
+            <CheckBox Content="Дата окончания:" 
+                      VerticalAlignment="Center" 
+                      Margin="10,0,10,0"
+                      x:Name="CheckBoxDateEnd"
+                      Checked="CheckBoxDateEnd_Checked" 
+                      Unchecked="CheckBoxDateEnd_Unchecked"/>
+            <DatePicker IsEnabled="False" 
+                        x:Name="DatePickerEnd"/>
+        </StackPanel>
+
+
+        <Button Content="Поиск" 
+                Width="80"
+                Height="20"
+                Click="ButtonSearch_Click" 
+                Grid.Row="1"
+                Margin="10" 
+                x:Name="ButtonSearch"/>
+
+
+        <DataGrid Grid.Row="2" 
+                  x:Name="DateGridCallRecords" 
+                  AutoGenerateColumns="False" 
+                  ItemsSource="{Binding CallRecordsCollection}"
+                  CanUserDeleteRows="False"
+                  CanUserAddRows="False"
+                  CanUserReorderColumns="False"
+                  SelectionUnit="FullRow"
+                  HorizontalGridLinesBrush="#FFC8C8C8"
+                  VerticalGridLinesBrush="LightGray"
+                  IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Владелец" Binding="{Binding OwnerText}"/>
+                <DataGridTextColumn Header="Название конференции" Binding="{Binding Topic}"/>
+                <DataGridTextColumn Header="Кол-во участников" Binding="{Binding ParticipantCount}"/>
+                <DataGridTextColumn Header="Список участников" Binding="{Binding ParticipantList}"/>
+                <DataGridTextColumn Header="Дата начала" Binding="{Binding DateTimeBegin}"/>
+                <DataGridTextColumn Header="Длительность" Binding="{Binding DurationText}"/>
+                <DataGridTextColumn Header="Имя файла" Binding="{Binding Name}"/>
+                <DataGridTemplateColumn Header="Размер файла">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding FileSizeText}" TextAlignment="Right"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Открыть файл" Click="ButtonOpenFile_Click" Margin="5,0,5,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Расположение" Click="ButtonOpenFolder_Click" Margin="5,0,5,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+        </DataGrid>
         
+        <Button Content="Сохранить в Excel"
+                Grid.Row="3" 
+                IsEnabled="False"
+                Width="120" 
+                Margin="0,10,0,0" 
+                x:Name="ButtonExportToExcel" 
+                Click="ButtonExportToExcel_Click"/>
     </Grid>
 </Window>
