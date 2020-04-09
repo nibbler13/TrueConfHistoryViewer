@@ -34,6 +34,8 @@ namespace TrueConfHistoryViewer {
 		public MainWindow() {
 			InitializeComponent();
 			DateGridCallRecords.DataContext = this;
+			DatePickerBegin.SelectedDate = DateTime.Now;
+			DatePickerEnd.SelectedDate = DateTime.Now;
 		}
 
 		private async void ButtonSearch_Click(object sender, RoutedEventArgs e) {
@@ -154,70 +156,74 @@ namespace TrueConfHistoryViewer {
 		}
 
 		private void ButtonExportToExcel_Click(object sender, RoutedEventArgs e) {
-			string fileName = "История звонков TrueConf";
-			if (CheckBoxDateBegin.IsChecked == true)
-				fileName += " с " + DatePickerBegin.SelectedDate.Value.ToShortDateString();
+			try {
 
-			if (CheckBoxDateEnd.IsChecked == true)
-				fileName += " по " + DatePickerEnd.SelectedDate.Value.ToShortDateString();
+				string fileName = "История звонков TrueConf";
+				if (CheckBoxDateBegin.IsChecked == true)
+					fileName += " с " + DatePickerBegin.SelectedDate.Value.ToShortDateString();
 
-			if (!CreateNewIWorkbook(fileName, out IWorkbook workbook, out ISheet sheet, out string resultFile))
-				return;
+				if (CheckBoxDateEnd.IsChecked == true)
+					fileName += " по " + DatePickerEnd.SelectedDate.Value.ToShortDateString();
+
+				if (!CreateNewIWorkbook(fileName, out IWorkbook workbook, out ISheet sheet, out string resultFile))
+					return;
 
 
-			int rowNumber = 1;
-			int columnNumber = 0;
+				int rowNumber = 1;
+				int columnNumber = 0;
 
-			foreach (CallRecords.CallRecord callRecord in CallRecordsCollection) {
-				IRow row = sheet.CreateRow(rowNumber);
+				foreach (CallRecords.CallRecord callRecord in CallRecordsCollection) {
+					IRow row = sheet.CreateRow(rowNumber);
 
-				string[] values = new string[] {
-					callRecord.ConferenceId,
-					callRecord.Name,
-					callRecord.NamedConfId,
-					callRecord.Topic,
-					callRecord.Owner,
-					callRecord.OwnerText,
-					callRecord.Class.ToString(),
-					callRecord.Type.ToString(),
-					callRecord.Subtype.ToString(),
-					callRecord.Duration.ToString(),
-					callRecord.FileSize.ToString(),
-					callRecord.StartTime.Date.ToString(),
-					callRecord.StartTime.Timezone,
-					callRecord.StartTime.TimezoneType.ToString(),
-					callRecord.EndTime.Date.ToString(),
-					callRecord.EndTime.Timezone,
-					callRecord.EndTime.TimezoneType.ToString(),
-					callRecord.IsPublic.ToString(),
-					callRecord.DownloadUrl,
-					callRecord.IsDeleted.ToString(),
-					callRecord.ParticipantCount
+					string[] values = new string[] {
+					callRecord.ConferenceId ?? "",
+					callRecord.ParticipantCount ?? "",
+					callRecord.ParticipantList ?? "",
+					callRecord.Name ?? "",
+					callRecord.NamedConfId ?? "",
+					callRecord.Topic ?? "",
+					callRecord.Owner ?? "",
+					callRecord.OwnerText ?? "",
+					callRecord.Class.ToString() ?? "",
+					callRecord.Type.ToString() ?? "",
+					callRecord.Subtype.ToString() ?? "",
+					callRecord.Duration.ToString() ?? "",
+					callRecord.FileSize.ToString() ?? "",
+					callRecord.StartTime.Date.ToString() ?? "",
+					callRecord.StartTime.Timezone ?? "",
+					callRecord.StartTime.TimezoneType.ToString() ?? "",
+					callRecord.EndTime == null ? callRecord.EndTime.Date.ToString() : "",
+					callRecord.EndTime == null ? callRecord.EndTime.Timezone : "",
+					callRecord.EndTime == null ? callRecord.EndTime.TimezoneType.ToString() : "",
+					callRecord.IsPublic.ToString() ?? "",
+					callRecord.DownloadUrl ?? "",
+					callRecord.IsDeleted.ToString() ?? ""
 				};
 
-				foreach (string value in values) {
-					ICell cell = row.CreateCell(columnNumber);
+					foreach (string value in values) {
+						ICell cell = row.CreateCell(columnNumber);
 
-					if (double.TryParse(value, out double result)) {
-						cell.SetCellValue(result);
-					//} else if (DateTime.TryParseExact(value, "dd.MM.yyyy h:mm:ss", 
-					//	CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date)) {
-					//	cell.SetCellValue(date);
-					} else {
-						cell.SetCellValue(value);
+						if (double.TryParse(value, out double result)) {
+							cell.SetCellValue(result);
+							//} else if (DateTime.TryParseExact(value, "dd.MM.yyyy h:mm:ss", 
+							//	CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date)) {
+							//	cell.SetCellValue(date);
+						} else {
+							cell.SetCellValue(value);
+						}
+
+						columnNumber++;
 					}
 
-					columnNumber++;
+					columnNumber = 0;
+					rowNumber++;
 				}
-
-				columnNumber = 0;
-				rowNumber++;
-			}
-
-
-			if (SaveAndCloseIWorkbook(workbook, resultFile)) {
-				MessageBox.Show(this, "Файл успешно сохранен по адресу: " + resultFile, "", MessageBoxButton.OK, MessageBoxImage.Information);
-				Process.Start(resultFile);
+				if (SaveAndCloseIWorkbook(workbook, resultFile)) {
+					MessageBox.Show(this, "Файл успешно сохранен по адресу: " + resultFile, "", MessageBoxButton.OK, MessageBoxImage.Information);
+					Process.Start(resultFile);
+				}
+			} catch (Exception exc) {
+				MessageBox.Show(this, "Не удалось выгрузить информацию: " + Environment.NewLine + exc.Message, "Возникла ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 		}
 
@@ -293,7 +299,7 @@ namespace TrueConfHistoryViewer {
 		private void ButtonOpenFile_Click(object sender, RoutedEventArgs e) {
 			try {
 				CallRecords.CallRecord callRecord = (sender as Button).DataContext as CallRecords.CallRecord;
-				Process.Start("\\\\portal2\\Recordings\\" + callRecord.Name);
+				Process.Start(@"\\portal2.bzklinika.ru\Recordings\" + callRecord.Name);
 			} catch (Exception exc) {
 				MessageBox.Show(this, exc.Message + Environment.NewLine + exc.StackTrace, 
 					"", MessageBoxButton.OK, MessageBoxImage.Error);

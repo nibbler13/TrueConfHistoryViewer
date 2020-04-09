@@ -90,7 +90,7 @@ namespace TrueConfHistoryViewer {
 			public CallRecords.CallRecord.DateTimeInfo JoinTime { get; set; }
 
 			[JsonProperty("leave_reason")]
-			public int LeaveReason { get; set; }
+			public int? LeaveReason { get; set; }
 
 			[JsonProperty("leave_time")]
 			public CallRecords.CallRecord.DateTimeInfo LeaveTime { get; set; }
